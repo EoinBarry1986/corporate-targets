@@ -736,10 +736,28 @@ function checkDuplicate(newVal) {
   const nl = newVal.toLowerCase().trim();
   let exactIdx = -1, partialMatches = [];
 
+  const stopwords = new Set(['the','and','for','ltd','limited','hire','services',
+    'construction','engineering','contractors','contractor','supplies','solutions']);
+
+  function keywords(s) {
+    return s.toLowerCase().split(/\s+/).filter(w => w.length >= 4 && !stopwords.has(w));
+  }
+
   appData.corporate.forEach((r, i) => {
     const el = r.company.toLowerCase().trim();
     if (nl === el) { exactIdx = i; return; }
+
+    // Substring match
     if (nl.length >= 3 && (el.includes(nl) || nl.includes(el))) {
+      partialMatches.push({ row: parseInt(r.num||i+1), company: r.company });
+      return;
+    }
+
+    // Keyword match — shared meaningful words (4+ chars)
+    const nlWords = keywords(nl);
+    const elWords = keywords(el);
+    const shared  = nlWords.filter(w => elWords.includes(w));
+    if (shared.length > 0) {
       partialMatches.push({ row: parseInt(r.num||i+1), company: r.company });
     }
   });
