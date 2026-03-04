@@ -508,7 +508,7 @@ function renderCorporate(rows) {
         <td style="color:var(--muted);font-size:11px">${r.num||i+1}</td>
         <td><strong>${esc(r.company)}</strong></td>
         <td><span class="editable-cell" contenteditable="true" onblur="updateContact(${i}, this)" style="display:block;min-width:80px;outline:none;color:var(--muted)">${esc(r.contact)}</span></td>
-        <td style="color:var(--muted)">${esc(r.committee)}</td>
+        <td><span class="editable-cell" contenteditable="true" onblur="updateCommittee(${i}, this)" style="display:block;min-width:80px;outline:none;color:var(--muted)">${esc(r.committee)}</span></td>
         <td>${contactBadge(r.contactMade, i)}</td>
         <td>${statusBadge(r.status, i)}</td>
         <td>${sponsorBadge(r.platinum, r.gold, i)}</td>
@@ -617,6 +617,19 @@ function updateContact(idx, el) {
   appData.corporate[dataIdx].contact = newVal;
   saveToBin();
   showToast('✅ Contact updated', 'green', 1800);
+}
+
+function updateCommittee(idx, el) {
+  const newVal = el.innerText.trim();
+  const rows   = document.querySelectorAll('#corpTableWrap tbody tr');
+  const row    = rows[idx];
+  if (!row) return;
+  const numCell = row.cells[0].textContent.trim();
+  const dataIdx = appData.corporate.findIndex(r => r.num == numCell);
+  if (dataIdx === -1) return;
+  appData.corporate[dataIdx].committee = newVal;
+  saveToBin();
+  showToast('✅ Committee updated', 'green', 1800);
 }
 
 function updateContactMade(idx, newVal, selectEl) {
@@ -855,6 +868,7 @@ window.updateStatus   = updateStatus;
 window.updateSponsorship  = updateSponsorship;
 window.updateContactMade  = updateContactMade;
 window.updateContact      = updateContact;
+window.updateCommittee    = updateCommittee;
 window.closeModal     = closeModal;
 window.modalBtnClick  = modalBtnClick;
 
