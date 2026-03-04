@@ -312,6 +312,20 @@ input.field:focus,select.field:focus{
 .editable-cell:hover { background:#f1f5f9; border-radius:4px; }
 .editable-cell:focus { background:#e8f1fb; border-radius:4px; color:var(--ink); }
 
+
+.btn-delete {
+  background: none;
+  border: none;
+  color: #cbd5e1;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  line-height: 1;
+  transition: color .15s, background .15s;
+}
+.btn-delete:hover { color: #991b1b; background: #fee2e2; }
+
 /* ── LOADING ── */
 .loading{
   display:flex;align-items:center;justify-content:center;
@@ -501,7 +515,7 @@ function renderCorporate(rows) {
 
   const html = `<table>
     <thead><tr>
-      <th>#</th><th>Company</th><th>Contact</th><th>Committee</th><th>Contact Made</th><th>Status</th><th>Sponsorship Type</th>
+      <th>#</th><th>Company</th><th>Contact</th><th>Committee</th><th>Contact Made</th><th>Status</th><th>Sponsorship Type</th><th></th>
     </tr></thead>
     <tbody>${rows.map((r,i) => `
       <tr>
@@ -512,6 +526,7 @@ function renderCorporate(rows) {
         <td>${contactBadge(r.contactMade, i)}</td>
         <td>${statusBadge(r.status, i)}</td>
         <td>${sponsorBadge(r.platinum, r.gold, i)}</td>
+        <td><button class="btn-delete" onclick="deleteRow(${i})" title="Remove">✕</button></td>
       </tr>`).join('')}
     </tbody>
   </table>`;
@@ -617,6 +632,29 @@ function updateContact(idx, el) {
   appData.corporate[dataIdx].contact = newVal;
   saveToBin();
   showToast('✅ Contact updated', 'green', 1800);
+}
+
+
+function deleteRow(idx) {
+  const rows    = document.querySelectorAll('#corpTableWrap tbody tr');
+  const row     = rows[idx];
+  if (!row) return;
+  const numCell = row.cells[0].textContent.trim();
+  const dataIdx = appData.corporate.findIndex(r => r.num == numCell);
+  if (dataIdx === -1) return;
+  const company = appData.corporate[dataIdx].company;
+
+  const pin = prompt('Enter PIN to delete "' + company + '":');
+  if (pin === null) return;
+  if (pin !== '2512') {
+    alert('Incorrect PIN. Row not deleted.');
+    return;
+  }
+
+  appData.corporate.splice(dataIdx, 1);
+  saveToBin();
+  renderAll();
+  showToast('🗑️ ' + company + ' removed', '', 2500);
 }
 
 function updateCommittee(idx, el) {
@@ -869,6 +907,7 @@ window.updateSponsorship  = updateSponsorship;
 window.updateContactMade  = updateContactMade;
 window.updateContact      = updateContact;
 window.updateCommittee    = updateCommittee;
+window.deleteRow          = deleteRow;
 window.closeModal     = closeModal;
 window.modalBtnClick  = modalBtnClick;
 
