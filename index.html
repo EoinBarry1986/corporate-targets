@@ -66,6 +66,8 @@ body{
   transition:color .15s,border-color .15s;
 }
 .tab.active{color:#fff;border-bottom-color:#60a5fa}
+.tab:last-child{color:#fbbf24;font-size:14px;}
+.tab:last-child.active{color:#fff;border-bottom-color:#fbbf24;background:rgba(251,191,36,.12);}
 .tab-panel{display:none}
 .tab-panel.active{display:block}
 
@@ -128,13 +130,15 @@ tr:hover td{background:var(--sky)}
 /* ── ADD FORM ── */
 .add-section{padding:14px}
 .add-card{
-  background:var(--card);border:1px solid var(--border);
+  background:var(--card);border:2px solid var(--navy);
   border-radius:12px;overflow:hidden;
+  box-shadow:0 4px 24px rgba(26,58,92,.15);
 }
 .add-header{
-  background:var(--navy);padding:12px 16px;
+  background:var(--navy);padding:16px 18px;
   font-family:'Barlow Condensed',sans-serif;
-  font-size:15px;font-weight:700;color:#fff;letter-spacing:.05em;
+  font-size:18px;font-weight:800;color:#fff;letter-spacing:.08em;
+  border-bottom:3px solid #fbbf24;
 }
 .add-body{padding:16px;display:flex;flex-direction:column;gap:12px}
 .field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -155,17 +159,18 @@ input.field:focus,select.field:focus{
   box-shadow:0 0 0 3px rgba(37,99,168,.1);
 }
 .btn-add{
-  width:100%;padding:12px;
+  width:100%;padding:14px;
   font-family:'Barlow Condensed',sans-serif;
-  font-size:16px;font-weight:800;letter-spacing:.08em;
-  color:#fff;background:var(--navy);
+  font-size:18px;font-weight:800;letter-spacing:.08em;
+  color:#1a3a5c;background:#fbbf24;
   border:none;border-radius:8px;cursor:pointer;
   transition:background .15s,transform .1s;
-  margin-top:4px;
+  margin-top:8px;
+  box-shadow:0 2px 8px rgba(251,191,36,.4);
 }
-.btn-add:hover{background:var(--blue)}
+.btn-add:hover{background:#f59e0b}
 .btn-add:active{transform:scale(.98)}
-.btn-add:disabled{background:var(--muted);cursor:not-allowed}
+.btn-add:disabled{background:var(--muted);cursor:not-allowed;color:#fff}
 
 /* ── TOAST ── */
 .toast{
@@ -307,7 +312,7 @@ input.field:focus,select.field:focus{
 
 <div class="tabs">
   <button class="tab active" onclick="showTab('corporate')">Corporate List</button>
-  <button class="tab" onclick="showTab('add')">+ Add Entry</button>
+  <button class="tab" onclick="showTab('add')">＋ Add Corporate Target</button>
 </div>
 
 <!-- ── CORPORATE LIST TAB ── -->
@@ -335,7 +340,7 @@ input.field:focus,select.field:focus{
 <div id="tab-add" class="tab-panel">
   <div class="add-section">
     <div class="add-card">
-      <div class="add-header">ADD TO CORPORATE LIST</div>
+      <div class="add-header">ADD CORPORATE TARGET</div>
       <div class="add-body">
         <div>
           <label class="field-label">Company Name *</label>
@@ -366,7 +371,7 @@ input.field:focus,select.field:focus{
             <input class="field" id="f-tickets" type="number" placeholder="0" min="0">
           </div>
         </div>
-        <button class="btn-add" id="btn-submit" onclick="submitEntry()">ADD COMPANY</button>
+        <button class="btn-add" id="btn-submit" onclick="submitEntry()">＋ ADD CORPORATE TARGET</button>
       </div>
     </div>
   </div>
@@ -747,7 +752,18 @@ function importData(event) {
 // ══════════════════════════════════════════════════════════════
 // INIT
 // ══════════════════════════════════════════════════════════════
+
+// ── Expose functions to global scope (required for type="module") ──
+window.showTab        = showTab;
+window.submitEntry    = submitEntry;
+window.filterCorporate = filterCorporate;
+window.updateStatus   = updateStatus;
+window.updateSponsorship = updateSponsorship;
+window.closeModal     = closeModal;
+window.modalBtnClick  = modalBtnClick;
+
 initStorage();
 </script>
 </body>
 </html>
+
