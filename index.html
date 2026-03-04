@@ -308,6 +308,10 @@ input.field:focus,select.field:focus{
 .contact-select.cm-phone    { background-color:#dcfce7; color:#166534; }
 .contact-select.cm-email    { background-color:#dbeafe; color:#1e40af; }
 
+
+.editable-cell:hover { background:#f1f5f9; border-radius:4px; }
+.editable-cell:focus { background:#e8f1fb; border-radius:4px; color:var(--ink); }
+
 /* ── LOADING ── */
 .loading{
   display:flex;align-items:center;justify-content:center;
@@ -352,6 +356,16 @@ input.field:focus,select.field:focus{
     <button class="btn-sync import" onclick="document.getElementById('importFile').click()" style="display:none">⬆ Import Data</button>
     <input type="file" id="importFile" accept=".json" onchange="importData(event)">
   </div>
+      <div style="background:#e8f1fb;border-left:4px solid #1a3a5c;border-radius:0 8px 8px 0;padding:14px 16px;margin:14px 14px 0 14px;">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:14px;color:#1a3a5c;letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px;">📋 Instructions</div>
+        <ol style="font-size:13px;color:#1c2833;line-height:1.8;padding-left:18px;margin:0;">
+          <li>Tap the <strong>＋ Add Corporate Target</strong> tab at the top of the screen.</li>
+          <li>Enter the company name — the app will warn you if a similar entry already exists.</li>
+          <li>Fill in the Contact Name and Committee Contact, then click <strong>Add Corporate Target</strong>.</li>
+          <li>Once you receive a response from the company, find them in the <strong>Corporate List</strong> and update their <strong>Status</strong> (Confirmed / Pending / Not Interested).</li>
+          <li>If they are sponsoring, also set their <strong>Sponsorship Type</strong> (Platinum or Gold).</li>
+        </ol>
+      </div>
   <div class="search-wrap">
     <input class="search-input" type="search" placeholder="Search company, contact, committee…" oninput="filterCorporate(this.value)" id="corpSearch">
   </div>
@@ -367,16 +381,6 @@ input.field:focus,select.field:focus{
     <div class="add-card">
       <div class="add-header">ADD CORPORATE TARGET</div>
       <div class="add-body">
-      <div style="background:#e8f1fb;border-left:4px solid #1a3a5c;border-radius:0 8px 8px 0;padding:14px 16px;margin-bottom:4px;">
-        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:14px;color:#1a3a5c;letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px;">📋 Instructions</div>
-        <ol style="font-size:13px;color:#1c2833;line-height:1.8;padding-left:18px;margin:0;">
-          <li>Tap the <strong>＋ Add Corporate Target</strong> tab at the top of the screen.</li>
-          <li>Enter the company name — the app will warn you if a similar entry already exists.</li>
-          <li>Fill in the Contact Name and Committee Contact, then click <strong>Add Corporate Target</strong>.</li>
-          <li>Once you receive a response from the company, find them in the <strong>Corporate List</strong> and update their <strong>Status</strong> (Confirmed / Pending / Not Interested).</li>
-          <li>If they are sponsoring, also set their <strong>Sponsorship Type</strong> (Platinum or Gold).</li>
-        </ol>
-      </div>
 
         <div>
           <label class="field-label">Company Name *</label>
@@ -503,7 +507,7 @@ function renderCorporate(rows) {
       <tr>
         <td style="color:var(--muted);font-size:11px">${r.num||i+1}</td>
         <td><strong>${esc(r.company)}</strong></td>
-        <td style="color:var(--muted)">${esc(r.contact)}</td>
+        <td><span class="editable-cell" contenteditable="true" onblur="updateContact(${i}, this)" style="display:block;min-width:80px;outline:none;color:var(--muted)">${esc(r.contact)}</span></td>
         <td style="color:var(--muted)">${esc(r.committee)}</td>
         <td>${contactBadge(r.contactMade, i)}</td>
         <td>${statusBadge(r.status, i)}</td>
@@ -601,6 +605,20 @@ function contactBadge(val, idx) {
   </select>`;
 }
 
+
+function updateContact(idx, el) {
+  const newVal = el.innerText.trim();
+  const rows   = document.querySelectorAll('#corpTableWrap tbody tr');
+  const row    = rows[idx];
+  if (!row) return;
+  const numCell = row.cells[0].textContent.trim();
+  const dataIdx = appData.corporate.findIndex(r => r.num == numCell);
+  if (dataIdx === -1) return;
+  appData.corporate[dataIdx].contact = newVal;
+  saveToBin();
+  showToast('✅ Contact updated', 'green', 1800);
+}
+
 function updateContactMade(idx, newVal, selectEl) {
   const rows = document.querySelectorAll('#corpTableWrap tbody tr');
   const row  = rows[idx];
@@ -610,6 +628,20 @@ function updateContactMade(idx, newVal, selectEl) {
   if (dataIdx === -1) return;
 
   appData.corporate[dataIdx].contactMade = newVal;
+
+  // Auto-set status to Pending if a contact method is selected
+  if (newVal !== '' && (!appData.corporate[dataIdx].status || appData.corporate[dataIdx].status === '')) {
+    appData.corporate[dataIdx].status = 'Pending';
+    // Update the status dropdown in the same row visually
+    const statusSel = row.querySelector('.status-select');
+    if (statusSel) {
+      statusSel.value = 'Pending';
+      statusSel.className = 'status-select s-pending';
+    }
+    // Update summary pending count
+    const pending = appData.corporate.filter(r => !r.status || r.status === '').length;
+    document.getElementById('s-pending').textContent = pending;
+  }
 
   const cls = newVal === 'In Person' ? 'cm-inperson'
             : newVal === 'Phone Call' ? 'cm-phone'
@@ -822,6 +854,7 @@ window.filterCorporate = filterCorporate;
 window.updateStatus   = updateStatus;
 window.updateSponsorship  = updateSponsorship;
 window.updateContactMade  = updateContactMade;
+window.updateContact      = updateContact;
 window.closeModal     = closeModal;
 window.modalBtnClick  = modalBtnClick;
 
