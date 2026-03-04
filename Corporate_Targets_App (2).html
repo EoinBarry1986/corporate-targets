@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Corporate Targets</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --ink:    #0d1b2a;
+  --navy:   #1a3a5c;
+  --blue:   #2563a8;
+  --sky:    #e8f1fb;
+  --green:  #166534;
+  --gbg:    #dcfce7;
+  --amber:  #92400e;
+  --abg:    #fef3c7;
+  --red:    #991b1b;
+  --rbg:    #fee2e2;
+  --border: #cbd5e1;
+  --muted:  #64748b;
+  --white:  #ffffff;
+  --surface:#f1f5f9;
+  --card:   #ffffff;
+}
+
+html{font-size:15px}
+body{
+  font-family:'Barlow',sans-serif;
+  background:var(--surface);
+  color:var(--ink);
+  min-height:100vh;
+  padding-bottom:60px;
+}
+
+/* ── TOP BAR ── */
+.topbar{
+  background:var(--navy);
+  padding:14px 18px 12px;
+  display:flex;align-items:center;gap:10px;
+  position:sticky;top:0;z-index:100;
+  box-shadow:0 2px 12px rgba(0,0,0,.25);
+}
+.topbar-title{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:20px;font-weight:800;
+  color:#fff;letter-spacing:.03em;
+  flex:1;
+}
+.topbar-sub{font-size:11px;color:#94a3b8;margin-top:1px}
+
+/* ── TABS ── */
+.tabs{
+  display:flex;background:var(--navy);
+  border-top:1px solid rgba(255,255,255,.08);
+}
+.tab{
+  flex:1;padding:10px 4px;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  color:rgba(255,255,255,.5);
+  background:none;border:none;cursor:pointer;
+  border-bottom:3px solid transparent;
+  transition:color .15s,border-color .15s;
+}
+.tab.active{color:#fff;border-bottom-color:#60a5fa}
+.tab:last-child{color:#fbbf24;font-size:14px;}
+.tab:last-child.active{color:#fff;border-bottom-color:#fbbf24;background:rgba(251,191,36,.12);}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* ── SUMMARY CARDS ── */
+.summary{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:10px;padding:14px;
+}
+.scard{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:10px;padding:12px 10px;text-align:center;
+}
+.scard-num{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:28px;font-weight:800;color:var(--navy);
+}
+.scard-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-top:2px}
+.scard.green .scard-num{color:var(--green)}
+.scard.blue  .scard-num{color:var(--blue)}
+
+/* ── SEARCH ── */
+.search-wrap{padding:0 14px 10px}
+.search-input{
+  width:100%;padding:10px 14px;
+  font-family:'Barlow',sans-serif;font-size:14px;
+  border:1.5px solid var(--border);border-radius:8px;
+  background:var(--card);color:var(--ink);
+  outline:none;
+}
+.search-input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,168,.12)}
+
+/* ── TABLE ── */
+.table-wrap{overflow-x:auto;padding:0 14px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{
+  background:var(--navy);color:#fff;
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:700;font-size:12px;letter-spacing:.06em;
+  text-transform:uppercase;
+  padding:9px 10px;text-align:left;
+  position:sticky;top:0;
+}
+td{
+  padding:8px 10px;
+  border-bottom:1px solid var(--border);
+  vertical-align:middle;
+}
+tr:nth-child(even) td{background:#f8fafc}
+tr:hover td{background:var(--sky)}
+
+.badge{
+  display:inline-block;padding:2px 8px;border-radius:20px;
+  font-size:11px;font-weight:600;letter-spacing:.04em;
+}
+.badge-yes    {background:var(--gbg);color:var(--green)}
+.badge-no     {background:#f1f5f9;color:var(--muted)}
+.badge-partial{background:var(--abg);color:var(--amber)}
+.badge-confirmed{background:var(--gbg);color:var(--green)}
+
+/* ── ADD FORM ── */
+.add-section{padding:14px}
+.add-card{
+  background:var(--card);border:2px solid var(--navy);
+  border-radius:12px;overflow:hidden;
+  box-shadow:0 4px 24px rgba(26,58,92,.15);
+}
+.add-header{
+  background:var(--navy);padding:16px 18px;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:18px;font-weight:800;color:#fff;letter-spacing:.08em;
+  border-bottom:3px solid #fbbf24;
+}
+.add-body{padding:16px;display:flex;flex-direction:column;gap:12px}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:480px){.field-row{grid-template-columns:1fr}}
+label.field-label{
+  font-size:11px;font-weight:600;color:var(--navy);
+  text-transform:uppercase;letter-spacing:.08em;
+  display:block;margin-bottom:4px;
+}
+input.field,select.field{
+  width:100%;padding:9px 12px;
+  font-family:'Barlow',sans-serif;font-size:14px;
+  border:1.5px solid var(--border);border-radius:7px;
+  background:var(--surface);color:var(--ink);outline:none;
+}
+input.field:focus,select.field:focus{
+  border-color:var(--blue);background:#fff;
+  box-shadow:0 0 0 3px rgba(37,99,168,.1);
+}
+.btn-add{
+  width:100%;padding:14px;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:18px;font-weight:800;letter-spacing:.08em;
+  color:#1a3a5c;background:#fbbf24;
+  border:none;border-radius:8px;cursor:pointer;
+  transition:background .15s,transform .1s;
+  margin-top:8px;
+  box-shadow:0 2px 8px rgba(251,191,36,.4);
+}
+.btn-add:hover{background:#f59e0b}
+.btn-add:active{transform:scale(.98)}
+.btn-add:disabled{background:var(--muted);cursor:not-allowed;color:#fff}
+
+/* ── TOAST ── */
+.toast{
+  position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(80px);
+  background:var(--ink);color:#fff;
+  padding:10px 20px;border-radius:8px;font-size:13px;font-weight:500;
+  box-shadow:0 4px 20px rgba(0,0,0,.3);
+  transition:transform .3s ease;z-index:999;white-space:nowrap;
+}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.green{background:var(--green)}
+.toast.red  {background:var(--red)}
+
+/* ── MODAL ── */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.55);
+  display:flex;align-items:center;justify-content:center;
+  z-index:500;padding:20px;
+  opacity:0;pointer-events:none;transition:opacity .2s;
+}
+.modal-overlay.show{opacity:1;pointer-events:all}
+.modal{
+  background:#fff;border-radius:14px;
+  max-width:340px;width:100%;
+  overflow:hidden;
+  transform:scale(.93);transition:transform .2s;
+}
+.modal-overlay.show .modal{transform:scale(1)}
+.modal-head{
+  padding:16px 18px 12px;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:17px;font-weight:800;letter-spacing:.04em;
+}
+.modal-head.red  {background:var(--rbg);color:var(--red)}
+.modal-head.amber{background:var(--abg);color:var(--amber)}
+.modal-body{padding:14px 18px;font-size:14px;line-height:1.6;color:var(--ink)}
+.modal-body strong{display:block;margin-bottom:6px}
+.modal-row{padding:7px 10px;background:var(--surface);border-radius:6px;font-size:13px;margin-top:6px;color:var(--navy)}
+.modal-foot{
+  display:flex;gap:8px;padding:12px 18px 16px;
+}
+.btn-modal{
+  flex:1;padding:10px;border:none;border-radius:7px;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:15px;font-weight:700;letter-spacing:.05em;cursor:pointer;
+}
+.btn-cancel{background:var(--surface);color:var(--ink)}
+.btn-confirm{background:var(--navy);color:#fff}
+.btn-ok{flex:1;background:var(--navy);color:#fff}
+
+
+
+/* ── EXPORT / IMPORT ── */
+.sync-bar{
+  display:flex;gap:8px;padding:0 14px 14px;
+}
+.btn-sync{
+  flex:1;padding:9px 10px;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:13px;font-weight:700;letter-spacing:.06em;
+  border:1.5px solid var(--border);border-radius:8px;
+  background:var(--card);color:var(--navy);
+  cursor:pointer;transition:background .15s;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+}
+.btn-sync:hover{background:var(--sky);border-color:var(--blue)}
+.btn-sync.import{background:var(--navy);color:#fff;border-color:var(--navy)}
+.btn-sync.import:hover{background:var(--blue)}
+#importFile{display:none}
+
+/* ── INLINE STATUS DROPDOWN ── */
+.status-select {
+  font-family: 'Barlow', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  border: none;
+  border-radius: 20px;
+  padding: 3px 8px;
+  cursor: pointer;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2364748b'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 6px center;
+  padding-right: 22px;
+}
+.status-select.s-empty     { background-color:#f1f5f9; color:#64748b; }
+.status-select.s-confirmed { background-color:#dcfce7; color:#166534; }
+.status-select.s-pending   { background-color:#fef3c7; color:#92400e; }
+
+.sponsor-select {
+  font-family: 'Barlow', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  border: none;
+  border-radius: 20px;
+  padding: 3px 8px;
+  cursor: pointer;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2364748b'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 6px center;
+  padding-right: 22px;
+}
+.sponsor-select.sp-empty    { background-color:#f1f5f9; color:#64748b; }
+.sponsor-select.sp-platinum { background-color:#e0e7ff; color:#3730a3; }
+.sponsor-select.sp-gold     { background-color:#fef3c7; color:#92400e; }
+
+.status-select.s-not       { background-color:#fee2e2; color:#991b1b; }
+
+/* ── LOADING ── */
+.loading{
+  display:flex;align-items:center;justify-content:center;
+  gap:10px;padding:40px;color:var(--muted);font-size:14px;
+}
+.spinner{
+  width:20px;height:20px;border:2px solid var(--border);
+  border-top-color:var(--blue);border-radius:50%;
+  animation:spin .7s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.count-label{
+  padding:6px 14px 10px;font-size:12px;color:var(--muted);
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div>
+    <div class="topbar-title">Corporate Targets</div>
+    <div class="topbar-sub" id="lastUpdated">Loading...</div>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="showTab('corporate')">Corporate List</button>
+  <button class="tab" onclick="showTab('add')">＋ Add Corporate Target</button>
+</div>
+
+<!-- ── CORPORATE LIST TAB ── -->
+<div id="tab-corporate" class="tab-panel active">
+  <div class="summary">
+    <div class="scard"><div class="scard-num" id="s-total">—</div><div class="scard-label">Total</div></div>
+    <div class="scard green"><div class="scard-num" id="s-confirmed">—</div><div class="scard-label">Confirmed</div></div>
+    <div class="scard blue"><div class="scard-num" id="s-pending">—</div><div class="scard-label">Pending</div></div>
+  </div>
+  <div class="sync-bar">
+    <button class="btn-sync" onclick="exportData()" style="display:none">⬇ Export Data</button>
+    <button class="btn-sync import" onclick="document.getElementById('importFile').click()" style="display:none">⬆ Import Data</button>
+    <input type="file" id="importFile" accept=".json" onchange="importData(event)">
+  </div>
+  <div class="search-wrap">
+    <input class="search-input" type="search" placeholder="Search company, contact, committee…" oninput="filterCorporate(this.value)" id="corpSearch">
+  </div>
+  <div class="count-label" id="corpCount"></div>
+  <div class="table-wrap" id="corpTableWrap">
+    <div class="loading"><div class="spinner"></div>Loading data…</div>
+  </div>
+</div>
+
+<!-- ── ADD ENTRY TAB ── -->
+<div id="tab-add" class="tab-panel">
+  <div class="add-section">
+    <div class="add-card">
+      <div class="add-header">ADD CORPORATE TARGET</div>
+      <div class="add-body">
+      <div style="background:#e8f1fb;border-left:4px solid #1a3a5c;border-radius:0 8px 8px 0;padding:14px 16px;margin-bottom:4px;">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:14px;color:#1a3a5c;letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px;">📋 Instructions</div>
+        <ol style="font-size:13px;color:#1c2833;line-height:1.8;padding-left:18px;margin:0;">
+          <li>Tap the <strong>＋ Add Corporate Target</strong> tab at the top of the screen.</li>
+          <li>Enter the company name — the app will warn you if a similar entry already exists.</li>
+          <li>Fill in the Contact Name and Committee Contact, then click <strong>Add Corporate Target</strong>.</li>
+          <li>Once you receive a response from the company, find them in the <strong>Corporate List</strong> and update their <strong>Status</strong> (Confirmed / Pending / Not Interested).</li>
+          <li>If they are sponsoring, also set their <strong>Sponsorship Type</strong> (Platinum or Gold).</li>
+        </ol>
+      </div>
+
+        <div>
+          <label class="field-label">Company Name *</label>
+          <input class="field" id="f-company" type="text" placeholder="e.g. Murphy's Garage" autocomplete="off">
+        </div>
+        <div class="field-row">
+          <div>
+            <label class="field-label">Contact Name</label>
+            <input class="field" id="f-contact" type="text" placeholder="Name">
+          </div>
+          <div>
+            <label class="field-label">Committee Contact</label>
+            <input class="field" id="f-committee" type="text" placeholder="Name">
+          </div>
+        </div>
+<button class="btn-add" id="btn-submit" onclick="submitEntry()">＋ ADD CORPORATE TARGET</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL ── -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-head" id="modalHead"></div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-foot" id="modalFoot"></div>
+  </div>
+</div>
+
+<!-- ── TOAST ── -->
+<div class="toast" id="toast"></div>
+
+<script type="module">
+// ══════════════════════════════════════════════════════════════
+// FIREBASE CONFIG
+// ══════════════════════════════════════════════════════════════
+const firebaseConfig = {
+  apiKey: "AIzaSyC0Tmaey2uoEPIqaRHRJGwmA4D9Q8XKOW4",
+  authDomain: "corporate-targets.firebaseapp.com",
+  projectId: "corporate-targets",
+  storageBucket: "corporate-targets.firebasestorage.app",
+  messagingSenderId: "741538645682",
+  appId: "1:741538645682:web:779c38aea1ac9b76356bab"
+};
+let appData    = { sponsors: [], corporate: [] };
+let saveTimeout = null;
+let db = null;
+
+// ══════════════════════════════════════════════════════════════
+// SEED DATA (initial load if no bin exists yet)
+// ══════════════════════════════════════════════════════════════
+const SEED = {"sponsors":[{"company":"Nunan Machinery","contact":"Maurice Nunan","committee":"Maurice Nunan","confirmed":"Yes","amount":"5000"},{"company":"Stokes Dental","contact":"Marty Stokes","committee":"Marty Stokes","confirmed":"Yes","amount":"5000"},{"company":"Meaneys Dromcollogher","contact":"Colm Meaney","committee":"Adrian Cahill","confirmed":"Yes","amount":"5000"},{"company":"Corner House, Dromcollogher","contact":"Pat Ward","committee":"Adrian Cahill","confirmed":"Yes","amount":"5000"},{"company":"Senator Windows","contact":"John o Connell","committee":"Tommy Cregan","confirmed":"Yes","amount":"5000"},{"company":"Liam Reidy SFC","contact":"Liam Reidy SFC","committee":"Micheál Reidy","confirmed":"Yes","amount":"5000"},{"company":"Whites Bins","contact":"Ger White","committee":"Marty Stokes","confirmed":"Yes","amount":"5000"},{"company":"Woodstock Composting","contact":"","committee":"","confirmed":"","amount":""},{"company":"Duggans Argi Contractors","contact":"Noel Duggan","committee":"Micheál Reidy","confirmed":"Yes","amount":"5000"},{"company":"OC Generators","contact":"Ogie O Connell","committee":"Maurice Nunan","confirmed":"Yes","amount":"5000"},{"company":"Michael White Agri Contractor","contact":"Michael White","committee":"Maurice Nunan","confirmed":"Yes","amount":"5000"},{"company":"Kieran Leahy Construction","contact":"Kieran Leahy","committee":"Tom McLouglin","confirmed":"No","amount":""},{"company":"Colm Cussen ABS Engineering","contact":"Colm Cussen","committee":"Marty Stokes","confirmed":"No","amount":""},{"company":"Pollock Lifts","contact":"Gary McConville","committee":"Micheál Reidy","confirmed":"No","amount":""},{"company":"Mallow Credit Union","contact":"Garry McGuinness","committee":"Micheál Reidy","confirmed":"Partial","amount":""},{"company":"O Sullivan Steel Drom","contact":"John O Sullivan Steel","committee":"Adrian Cahill","confirmed":"No","amount":""},{"company":"Weener Drom","contact":"TBC","committee":"Adrian Cahill / Ben Noonan","confirmed":"No","amount":""},{"company":"Kevin cullane Construction","contact":"Kevin cullane","committee":"Adrian Cahill","confirmed":"No","amount":""},{"company":"Gambling.com","contact":"Seamus Barry","committee":"Seamus Barry","confirmed":"No","amount":""}],"corporate":[{"num":"1","company":"Cahalanes Brothers","contact":"Sean Collins","committee":"Micheál Reidy","status":"","platinum":"","gold":"","tickets":""},{"num":"2","company":"Clancys Construction","contact":"Aidan Maher","committee":"Micheál Reidy","status":"","platinum":"","gold":"","tickets":""},{"num":"3","company":"Authentic homes","contact":"Tom Murray","committee":"Micheál Reidy","status":"","platinum":"","gold":"","tickets":""},{"num":"4","company":"COOLSIVNA Construction","contact":"Peter o Toole","committee":"Micheál Reidy","status":"","platinum":"","gold":"","tickets":""},{"num":"5","company":"BOYLE Construction","contact":"Martin o Callaghan","committee":"Micheál Reidy","status":"","platinum":"","gold":"","tickets":""},{"num":"6","company":"Ned o Shea Construction","contact":"Diarmuid Dineen","committee":"Micheál Reidy","status":"","platinum":"","gold":"","tickets":""},{"num":"7","company":"Geaney Consulting Eng","contact":"Jerry Geaney","committee":"Micheál Reidy","status":"","platinum":"","gold":"","tickets":""},{"num":"8","company":"Townmore Construction","contact":"Kevin Enright","committee":"Micheál Reidy","status":"","platinum":"","gold":"","tickets":""},{"num":"9","company":"Pollock Lifts","contact":"Gary McConville","committee":"Micheál Reidy","status":"","platinum":"","gold":"","tickets":""},{"num":"10","company":"Lift Serv","contact":"Thomas/Ed","committee":"Micheál Reidy","status":"","platinum":"","gold":"","tickets":""},{"num":"11","company":"John Buckley","contact":"John Buckley","committee":"Micheál Reidy","status":"","platinum":"","gold":"","tickets":""},{"num":"12","company":"Celtic Lifting","contact":"Declan O Regan","committee":"Micheál Reidy","status":"","platinum":"","gold":"","tickets":""},{"num":"13","company":"Unijobs","contact":"","committee":"Adrian Cahill","status":"","platinum":"","gold":"","tickets":""},{"num":"14","company":"Stables bar UL","contact":"","committee":"Adrian Cahill","status":"","platinum":"","gold":"","tickets":""},{"num":"15","company":"Paudie Keneally Bus Hire","contact":"","committee":"Adrian Cahill","status":"","platinum":"","gold":"","tickets":""},{"num":"16","company":"Henessey Perozzi Solicitors","contact":"","committee":"Adrian Cahill","status":"","platinum":"","gold":"","tickets":""},{"num":"17","company":"Evolution Fitness","contact":"","committee":"Adrian Cahill","status":"","platinum":"","gold":"","tickets":""},{"num":"18","company":"Aidan Butler","contact":"","committee":"Adrian Cahill","status":"","platinum":"","gold":"","tickets":""},{"num":"19","company":"Twomeys Bakery","contact":"","committee":"Geraldine o Sullivan","status":"","platinum":"","gold":"","tickets":""},{"num":"20","company":"Dooleys Pharmacy","contact":"Grainne Nally","committee":"Geraldine o Sullivan","status":"","platinum":"","gold":"","tickets":""},{"num":"22","company":"ABS Engineering","contact":"","committee":"John o Kelly/Marthy Stokes","status":"","platinum":"","gold":"","tickets":""},{"num":"23","company":"Bawn Motors","contact":"","committee":"Tommy Cregan","status":"","platinum":"","gold":"","tickets":""},{"num":"24","company":"Weener Plastics","contact":"","committee":"Adrian Cahill","status":"","platinum":"","gold":"","tickets":""},{"num":"25","company":"John o Sullivan Steel","contact":"","committee":"Adrian Cahill","status":"","platinum":"","gold":"","tickets":""},{"num":"26","company":"Orona Lifts","contact":"Nially Whitty","committee":"Micheál Reidy","status":"","platinum":"","gold":"","tickets":""},{"num":"27","company":"Moloneys Shop","contact":"","committee":"Micheál Reidy","status":"","platinum":"","gold":"","tickets":""},{"num":"28","company":"Pauline Begleys","contact":"","committee":"Mike Boyce","status":"","platinum":"","gold":"","tickets":""},{"num":"29","company":"Mike Kelly Plant Hire","contact":"","committee":"John o Kelly","status":"","platinum":"","gold":"","tickets":""},{"num":"30","company":"Metal Master (John Shanahan)","contact":"","committee":"Micheál Reidy","status":"","platinum":"","gold":"","tickets":""},{"num":"31","company":"Positiver Electrical","contact":"","committee":"Tom McLoghlin","status":"","platinum":"","gold":"","tickets":""},{"num":"32","company":"MSL Engineering","contact":"","committee":"John o Kelly","status":"","platinum":"","gold":"","tickets":""},{"num":"33","company":"Woodlands Hotel Adare","contact":"","committee":"Mike Fahy","status":"","platinum":"","gold":"","tickets":""},{"num":"34","company":"Vienna Woods Hotel","contact":"","committee":"John o Kelly","status":"","platinum":"","gold":"","tickets":""},{"num":"35","company":"Longcourt Hotel NCW","contact":"","committee":"Jim Barry","status":"","platinum":"","gold":"","tickets":""},{"num":"36","company":"Charleville Park Hotel","contact":"","committee":"Jim Barry","status":"","platinum":"","gold":"","tickets":""},{"num":"37","company":"Devon Inn Hotel","contact":"","committee":"Jim Barry","status":"","platinum":"","gold":"","tickets":""},{"num":"38","company":"PJ O Connor Garage","contact":"","committee":"John o Kelly","status":"","platinum":"","gold":"","tickets":""},{"num":"39","company":"Goggin Buckley","contact":"Johnny Buckley","committee":"John o Kelly","status":"","platinum":"","gold":"","tickets":""},{"num":"40","company":"Wrights Argi","contact":"","committee":"John o Kelly","status":"","platinum":"","gold":"","tickets":""},{"num":"41","company":"RPM Sales (T Reidy)","contact":"Tracey Reidy","committee":"Tomás Reidy","status":"","platinum":"","gold":"","tickets":""},{"num":"43","company":"The Green Bar","contact":"","committee":"James Noonan","status":"","platinum":"","gold":"","tickets":""},{"num":"44","company":"Martin Cussen Construction","contact":"","committee":"Ben Noonan","status":"","platinum":"","gold":"","tickets":""},{"num":"45","company":"FIT 100","contact":"John Brudair","committee":"Micheál Reidy","status":"","platinum":"","gold":"","tickets":""},{"num":"46","company":"Brudairs Bakery","contact":"Frank Brudair","committee":"Adrian Cahill / John o Dell","status":"","platinum":"","gold":"","tickets":""},{"num":"47","company":"Daybreak Dromcollogher","contact":"","committee":"","status":"","platinum":"","gold":"","tickets":""},{"num":"48","company":"Patrick lomasney furniture","contact":"","committee":"Mike Boyce","status":"","platinum":"","gold":"","tickets":""},{"num":"49","company":"Dtops newcastlewest","contact":"","committee":"Kevin Noonan","status":"","platinum":"","gold":"","tickets":""},{"num":"50","company":"Leahy builders","contact":"","committee":"Kevin McGill/James Noonan","status":"","platinum":"","gold":"","tickets":""},{"num":"51","company":"Burtons Kanturk","contact":"","committee":"Brian Fitzgerald","status":"","platinum":"","gold":"","tickets":""},{"num":"52","company":"Energywise","contact":"","committee":"","status":"","platinum":"","gold":"","tickets":""},{"num":"53","company":"Noel Corbett (village bar)","contact":"","committee":"Gareth Noonan","status":"","platinum":"","gold":"","tickets":""},{"num":"54","company":"Sole Sports and leisure","contact":"","committee":"Ben Noonan","status":"","platinum":"","gold":"","tickets":""},{"num":"55","company":"Cobi Sports","contact":"","committee":"Adrian Cahill","status":"","platinum":"","gold":"","tickets":""},{"num":"56","company":"Prestige Detection Systems","contact":"","committee":"Marty Stokes","status":"","platinum":"","gold":"","tickets":""},{"num":"57","company":"feale Alarms","contact":"","committee":"","status":"","platinum":"","gold":"","tickets":""},{"num":"58","company":"Croom Concrete","contact":"","committee":"John Costello","status":"","platinum":"","gold":"","tickets":""},{"num":"59","company":"Tarrants banteer","contact":"","committee":"Adrian Cahill/Ben Noonan","status":"","platinum":"","gold":"","tickets":""},{"num":"60","company":"O Connor Butchers","contact":"","committee":"Adrian Cahill","status":"","platinum":"","gold":"","tickets":""},{"num":"62","company":"O Regan Dairy services","contact":"","committee":"","status":"","platinum":"","gold":"","tickets":""},{"num":"63","company":"Burkes homeware","contact":"","committee":"Denis O Callaghan","status":"","platinum":"","gold":"","tickets":""},{"num":"64","company":"Tadgh o connor","contact":"","committee":"Denis O Callaghan","status":"","platinum":"","gold":"","tickets":""},{"num":"65","company":"Fitzsimons printers shanagolden","contact":"","committee":"Adrian Cahill","status":"","platinum":"","gold":"","tickets":""},{"num":"66","company":"Cube Printing Limerick","contact":"","committee":"Adrian Cahill","status":"","platinum":"","gold":"","tickets":""},{"num":"67","company":"Imelda daly catering","contact":"","committee":"Adrian Cahill","status":"","platinum":"","gold":"","tickets":""},{"num":"68","company":"Sse renewables","contact":"","committee":"Mike Fahy","status":"","platinum":"","gold":"","tickets":""},{"num":"69","company":"Tullylease GAA","contact":"","committee":"John o Kelly","status":"","platinum":"","gold":"","tickets":""},{"num":"70","company":"Milford GAA","contact":"","committee":"","status":"","platinum":"","gold":"","tickets":""},{"num":"71","company":"Meelin GAA","contact":"","committee":"Tommy Cregan","status":"","platinum":"","gold":"","tickets":""},{"num":"72","company":"Feenagh Kilmeedy GAA","contact":"","committee":"","status":"","platinum":"","gold":"","tickets":""},{"num":"73","company":"Foehanagh Castlemahon GAA","contact":"","committee":"","status":"","platinum":"","gold":"","tickets":""},{"num":"74","company":"Killeedy GAA","contact":"","committee":"","status":"","platinum":"","gold":"","tickets":""},{"num":"75","company":"Gearys Bar charleville","contact":"","committee":"","status":"","platinum":"","gold":"","tickets":""},{"num":"76","company":"Dave Kelly Capentry & Building Services","contact":"Dave Kelly","committee":"Bridget C O Flynn","status":"Confirmed","platinum":"","gold":"500","tickets":""},{"num":"77","company":"SRC Sean Reilly Construction","contact":"Sean Reilly","committee":"Bridget C O Flynn","status":"Confirmed","platinum":"1000","gold":"","tickets":""},{"num":"78","company":"Silgan Dispensing","contact":"","committee":"Adrian Cahill","status":"Confirmed","platinum":"","gold":"500","tickets":""},{"num":"79","company":"O Connor O Dea Binchy Solicitors","contact":"Enda O Connor","committee":"Adrian Cahill","status":"Confirmed","platinum":"","gold":"500","tickets":""},{"num":"80","company":"Paul Ennis","contact":"Paul Ennis","committee":"Eoin Barry","status":"","platinum":"","gold":"","tickets":""},{"num":"81","company":"Damien Ennis","contact":"Damien Ennis","committee":"Eoin Barry","status":"","platinum":"","gold":"","tickets":""},{"num":"82","company":"Joseph Daly","contact":"Joseph Daly","committee":"Eoin Barry","status":"","platinum":"","gold":"","tickets":""},{"num":"83","company":"Northgate Vehicle Hire","contact":"","committee":"Caroline Kirwan","status":"","platinum":"","gold":"","tickets":""},{"num":"84","company":"Greg Phillips Auto Electrcian","contact":"","committee":"Caroline Kirwan","status":"","platinum":"","gold":"","tickets":""},{"num":"85","company":"Select Signs","contact":"","committee":"Caroline Kirwan","status":"","platinum":"","gold":"","tickets":""},{"num":"86","company":"NVD","contact":"","committee":"Caroline Kirwan","status":"","platinum":"","gold":"","tickets":""},{"num":"87","company":"Van Guard","contact":"","committee":"Caroline Kirwan","status":"","platinum":"","gold":"","tickets":""},{"num":"88","company":"Kevin & John O Connor Kyotech Abbeyfeale","contact":"Kevin O Connor","committee":"Thomas McLoughlin","status":"","platinum":"","gold":"","tickets":""},{"num":"89","company":"Rhyno Mills Castleisland","contact":"Matt Browne","committee":"Thomas McLoughlin","status":"","platinum":"","gold":"","tickets":""},{"num":"90","company":"Drom Memorials","contact":"","committee":"Adrian Cahill","status":"","platinum":"","gold":"","tickets":""},{"num":"91","company":"PCG PAUL COSGROVE","contact":"","committee":"Bob Boyce","status":"","platinum":"","gold":"","tickets":""},{"num":"92","company":"EOIN SHINE ELECTRICAL","contact":"","committee":"Bob Boyce","status":"","platinum":"","gold":"","tickets":""},{"num":"93","company":"ARTIC MECHANICAL","contact":"","committee":"Bob Boyce","status":"","platinum":"","gold":"","tickets":""},{"num":"94","company":"LOUGH GUR CARPENTRY","contact":"","committee":"Bob Boyce","status":"","platinum":"","gold":"","tickets":""},{"num":"95","company":"PREMIER FLOOR SCREED","contact":"","committee":"Bob Boyce","status":"","platinum":"","gold":"","tickets":""},{"num":"96","company":"ALUCAST","contact":"","committee":"Bob Boyce","status":"","platinum":"","gold":"","tickets":""},{"num":"97","company":"CONOR MULVIHILL -PLASTERING","contact":"","committee":"Bob Boyce","status":"","platinum":"","gold":"","tickets":""},{"num":"98","company":"BETON CONSTRUCTION","contact":"","committee":"Bob Boyce","status":"","platinum":"","gold":"","tickets":""},{"num":"99","company":"HORGAN RENEWABLES","contact":"","committee":"Bob Boyce","status":"","platinum":"","gold":"","tickets":""},{"num":"100","company":"DOVETAIL JOINERY","contact":"","committee":"Bob Boyce","status":"","platinum":"","gold":"","tickets":""},{"num":"101","company":"CASTLEGREY LANDSCAPING","contact":"","committee":"Bob Boyce","status":"","platinum":"","gold":"","tickets":""},{"num":"102","company":"WALLICE PAVING","contact":"","committee":"Bob Boyce","status":"","platinum":"","gold":"","tickets":""},{"num":"103","company":"WALSH WINDOWS","contact":"","committee":"Bob Boyce","status":"","platinum":"","gold":"","tickets":""},{"num":"104","company":"CK CEILINGS","contact":"","committee":"Bob Boyce","status":"","platinum":"","gold":"","tickets":""},{"num":"105","company":"Top spec motors","contact":"","committee":"Tommy Cregan","status":"","platinum":"","gold":"","tickets":""},{"num":"106","company":"The haggart / DS refrigeration","contact":"","committee":"Tommy Cregan","status":"","platinum":"","gold":"","tickets":""},{"num":"107","company":"Western Brand","contact":"","committee":"Tommy Cregan","status":"","platinum":"","gold":"","tickets":""},{"num":"108","company":"Ben Neenan","contact":"","committee":"Tommy Cregan","status":"","platinum":"","gold":"","tickets":""},{"num":"109","company":"Quinlan's bar meelin","contact":"","committee":"Tommy Cregan","status":"","platinum":"","gold":"","tickets":""},{"num":"110","company":"Aughinish Alumina","contact":"","committee":"James Noonan","status":"","platinum":"","gold":"","tickets":""},{"num":"111","company":"Sean Leahy Builder","contact":"","committee":"James Noonan","status":"","platinum":"","gold":"","tickets":""},{"num":"112","company":"drom pharmacy","contact":"","committee":"Mary Lenihan","status":"","platinum":"","gold":"","tickets":""},{"num":"113","company":"paud nolan (tullig livestock)","contact":"","committee":"Mary Lenihan","status":"","platinum":"","gold":"","tickets":""},{"num":"114","company":"cian donegan agri","contact":"","committee":"Mary Lenihan","status":"","platinum":"","gold":"","tickets":""},{"num":"115","company":"Pat Boyce Architect","contact":"","committee":"Marty Stokes","status":"","platinum":"","gold":"","tickets":""},{"num":"116","company":"Johnny Shanahan","contact":"","committee":"Marty Stokes","status":"","platinum":"","gold":"","tickets":""},{"num":"117","company":"Joe Murphy","contact":"","committee":"Marty Stokes","status":"","platinum":"","gold":"","tickets":""},{"num":"118","company":"Conor Flynn Osteopath","contact":"","committee":"Marty Stokes","status":"","platinum":"","gold":"","tickets":""},{"num":"119","company":"PDSL Dave Enright","contact":"","committee":"Marty Stokes","status":"","platinum":"","gold":"","tickets":""},{"num":"120","company":"Richie o Sullivan","contact":"","committee":"Marty Stokes","status":"","platinum":"","gold":"","tickets":""},{"num":"121","company":"Mullane Dentist","contact":"","committee":"Marty Stokes","status":"","platinum":"","gold":"","tickets":""},{"num":"122","company":"BOI Mike Noonan","contact":"","committee":"Marty Stokes","status":"","platinum":"","gold":"","tickets":""},{"num":"123","company":"AIB - Maureen Neenan","contact":"","committee":"Marty Stokes","status":"","platinum":"","gold":"","tickets":""},{"num":"124","company":"Dr Roger Hayes","contact":"","committee":"Marty Stokes","status":"","platinum":"","gold":"","tickets":""},{"num":"125","company":"Fornan Constrcutuion - Thomas Quaid","contact":"","committee":"Marty Stokes","status":"","platinum":"","gold":"","tickets":""},{"num":"126","company":"Foynes engineering","contact":"","committee":"Maurice Nunan","status":"","platinum":"","gold":"","tickets":""},{"num":"127","company":"Dooley pharmacy NCW","contact":"","committee":"Maurice Nunan","status":"","platinum":"","gold":"","tickets":""},{"num":"128","company":"McHale Engineering","contact":"","committee":"Maurice Nunan","status":"","platinum":"","gold":"","tickets":""},{"num":"129","company":"Abbey Machinery","contact":"","committee":"Maurice Nunan","status":"","platinum":"","gold":"","tickets":""},{"num":"130","company":"Brian Scully Refrigeration NCW","contact":"","committee":"Maurice Nunan","status":"","platinum":"","gold":"","tickets":""},{"num":"131","company":"Gavin White, is he with Ger White?","contact":"","committee":"Maurice Nunan","status":"","platinum":"","gold":"","tickets":""},{"num":"132","company":"Liffey distributors","contact":"","committee":"Maurice Nunan","status":"","platinum":"","gold":"","tickets":""},{"num":"133","company":"Man that Bought Sean O'Dowd's house in Kilmeedy.","contact":"","committee":"Maurice Nunan","status":"","platinum":"","gold":"","tickets":""},{"num":"134","company":"Geary's Garage,","contact":"","committee":"Paddy/John Kelly","status":"","platinum":"","gold":"","tickets":""},{"num":"135","company":"Reirk Energy Ltd","contact":"Michael Murnane","committee":"Mike Fahy","status":"","platinum":"","gold":"","tickets":""},{"num":"136","company":"Tournafulla Windfarm.","contact":"anne.reynolds@sse.com","committee":"Mike Fahy","status":"","platinum":"","gold":"","tickets":""},{"num":"137","company":"Bank of Ireland","contact":"Olivia Morrissey/James Sheehy.","committee":"Mike Fahy","status":"","platinum":"","gold":"","tickets":""},{"num":"138","company":"Mallow Credit Union","contact":"","committee":"Mike Fahy","status":"","platinum":"","gold":"","tickets":""},{"num":"139","company":"Roches Feeds Limerick","contact":"","committee":"Mike Fahy","status":"","platinum":"","gold":"","tickets":""},{"num":"140","company":"O Connell Feeds Crecora","contact":"","committee":"Mike Fahy","status":"","platinum":"","gold":"","tickets":""},{"num":"141","company":"Kerry Agri","contact":"Charleville","committee":"Mike Fahy","status":"","platinum":"","gold":"","tickets":""},{"num":"142","company":"GVM Marts Kilmallock","contact":"","committee":"Mike Fahy","status":"","platinum":"","gold":"","tickets":""},{"num":"143","company":"Kanturk Marts Kanturk","contact":"","committee":"Mike Fahy","status":"","platinum":"","gold":"","tickets":""},{"num":"144","company":"KCS Kantoher","contact":"Bryan Cunninghsm","committee":"Mike Fahy","status":"","platinum":"","gold":"","tickets":""},{"num":"146","company":"North Cork Dairies","contact":"Kanturk","committee":"Mike Fahy","status":"","platinum":"","gold":"","tickets":""},{"num":"147","company":"Brian A Flynn","contact":"","committee":"Carol Fahy","status":"","platinum":"","gold":"","tickets":""},{"num":"148","company":"Liam Collum builders","contact":"","committee":"Carol Fahy","status":"","platinum":"","gold":"","tickets":""},{"num":"149","company":"The Corbett Group.","contact":"","committee":"Carol Fahy","status":"","platinum":"","gold":"","tickets":""},{"num":"150","company":"Declan Leahy building","contact":"","committee":"Carol Fahy","status":"","platinum":"","gold":"","tickets":""},{"num":"151","company":"Croom Medical","contact":"","committee":"Carol Fahy","status":"","platinum":"","gold":"","tickets":""},{"num":"152","company":"Plassey foods","contact":"","committee":"Carol Fahy","status":"","platinum":"","gold":"","tickets":""},{"num":"153","company":"KCS transport","contact":"","committee":"Carol Fahy","status":"","platinum":"","gold":"","tickets":""},{"num":"154","company":"Career decisions","contact":"","committee":"Carol Fahy","status":"","platinum":"","gold":"","tickets":""},{"num":"155","company":"Barna Transport","contact":"","committee":"Carol Fahy","status":"","platinum":"","gold":"","tickets":""},{"num":"156","company":"Car sales places","contact":"","committee":"General","status":"","platinum":"","gold":"","tickets":""},{"num":"157","company":"Plummer suppliers","contact":"","committee":"General","status":"","platinum":"","gold":"","tickets":""},{"num":"158","company":"Electrician suppliers","contact":"","committee":"General","status":"","platinum":"","gold":"","tickets":""},{"num":"159","company":"Shanahan Transport","contact":"Mike Riordon","committee":"Mike Boyce","status":"","platinum":"","gold":"","tickets":""},{"num":"160","company":"Irish Dresden","contact":"","committee":"Adrian Cahill","status":"","platinum":"","gold":"","tickets":""},{"num":"161","company":"Munster Joinery","contact":"","committee":"Siobhan/Niamh McCarthy","status":"","platinum":"","gold":"","tickets":""},{"num":"162","company":"Frank hogan car Sales","contact":"","committee":"Siobhan/Niamh McCarthy","status":"","platinum":"","gold":"","tickets":""},{"num":"163","company":"Miraim magner Flynn","contact":"","committee":"","status":"","platinum":"","gold":"","tickets":""},{"num":"164","company":"Eoin o sullivan adare","contact":"","committee":"Micheál Reidy","status":"","platinum":"","gold":"","tickets":""},{"num":"165","company":"Kellys Ballydesmond","contact":"Sean Kelly","committee":"Mike Fahy/Micheál Reidy","status":"","platinum":"","gold":"","tickets":""},{"num":"166","company":"Springfield farm","contact":"","committee":"Siobhan/Niamh McCarthy","status":"","platinum":"","gold":"","tickets":""}]};
+
+// ══════════════════════════════════════════════════════════════
+// STORAGE — Firebase Firestore (live sync for all users)
+// ══════════════════════════════════════════════════════════════
+
+async function initStorage() {
+  try {
+    const { initializeApp }                          = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js');
+    const { getFirestore, doc, getDoc, setDoc }      = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+
+    const app = initializeApp(firebaseConfig);
+    db = getFirestore(app);
+
+    const docRef  = doc(db, 'data', 'main');
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists() && docSnap.data().corporate && docSnap.data().corporate.length > 0) {
+      appData = docSnap.data();
+    } else {
+      appData = JSON.parse(JSON.stringify(SEED));
+      await setDoc(docRef, appData);
+    }
+    renderAll();
+  } catch(e) {
+    console.error('Firebase error:', e);
+    appData = JSON.parse(JSON.stringify(SEED));
+    renderAll();
+    showToast('⚠️ Could not connect to database', 'red', 4000);
+  }
+}
+
+async function saveToBin() {
+  if (!db) return;
+  clearTimeout(saveTimeout);
+  saveTimeout = setTimeout(async () => {
+    try {
+      const { doc, setDoc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+      await setDoc(doc(db, 'data', 'main'), appData);
+    } catch(e) {
+      showToast('⚠️ Save failed — check connection', 'red', 3000);
+    }
+  }, 600);
+}
+
+
+// ══════════════════════════════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════════════════════════════
+function renderAll() {
+  renderCorporate(appData.corporate);
+  updateSummary();
+  document.getElementById('lastUpdated').textContent =
+    'Last updated: ' + new Date().toLocaleTimeString('en-IE', {hour:'2-digit',minute:'2-digit'});
+}
+
+function renderCorporate(rows) {
+  const confirmed = rows.filter(r => r.status && r.status.toLowerCase() === 'confirmed').length;
+  document.getElementById('s-total').textContent     = rows.length;
+  document.getElementById('s-confirmed').textContent = confirmed;
+  document.getElementById('s-pending').textContent   = rows.length - confirmed;
+  document.getElementById('corpCount').textContent   = rows.length + ' companies';
+
+  const html = `<table>
+    <thead><tr>
+      <th>#</th><th>Company</th><th>Contact</th><th>Committee</th><th>Status</th><th>Sponsorship Type</th>
+    </tr></thead>
+    <tbody>${rows.map((r,i) => `
+      <tr>
+        <td style="color:var(--muted);font-size:11px">${r.num||i+1}</td>
+        <td><strong>${esc(r.company)}</strong></td>
+        <td style="color:var(--muted)">${esc(r.contact)}</td>
+        <td style="color:var(--muted)">${esc(r.committee)}</td>
+        <td>${statusBadge(r.status, i)}</td>
+        <td>${sponsorBadge(r.platinum, r.gold, i)}</td>
+      </tr>`).join('')}
+    </tbody>
+  </table>`;
+  document.getElementById('corpTableWrap').innerHTML = html;
+}
+
+function updateSummary() {}
+
+function statusBadge(s, idx) {
+  const val = s || '';
+  const cls = val.toLowerCase() === 'confirmed' ? 's-confirmed'
+            : val.toLowerCase() === 'pending'   ? 's-pending'
+            : val.toLowerCase() === 'not interested' ? 's-not'
+            : 's-empty';
+  return `<select class="status-select ${cls}" onchange="updateStatus(${idx}, this.value, this)">
+    <option value="" ${val===''?'selected':''}>— Status —</option>
+    <option value="Confirmed"     ${val==='Confirmed'?'selected':''}>Confirmed</option>
+    <option value="Pending"       ${val==='Pending'?'selected':''}>Pending</option>
+    <option value="Not Interested"${val==='Not Interested'?'selected':''}>Not Interested</option>
+  </select>`;
+}
+
+function updateStatus(idx, newStatus, selectEl) {
+  // Find the real index in appData.corporate by matching rendered order
+  const rows = document.querySelectorAll('#corpTableWrap tbody tr');
+  // idx is the position in the currently rendered (possibly filtered) table
+  // We need to match back to appData by company num
+  const row = rows[idx];
+  if (!row) return;
+  const numCell = row.cells[0].textContent.trim();
+  const dataIdx = appData.corporate.findIndex(r => r.num == numCell);
+  if (dataIdx === -1) return;
+
+  appData.corporate[dataIdx].status = newStatus;
+
+  // Update dropdown colour class
+  const cls = newStatus.toLowerCase() === 'confirmed' ? 's-confirmed'
+            : newStatus.toLowerCase() === 'pending'   ? 's-pending'
+            : newStatus.toLowerCase() === 'not interested' ? 's-not'
+            : 's-empty';
+  selectEl.className = 'status-select ' + cls;
+
+  // Update summary counts without full re-render (keeps dropdowns stable)
+  const confirmed = appData.corporate.filter(r => r.status && r.status.toLowerCase() === 'confirmed').length;
+  document.getElementById('s-confirmed').textContent = confirmed;
+  document.getElementById('s-pending').textContent   = appData.corporate.length - confirmed;
+
+  saveToBin();
+  showToast('✅ Status updated', 'green', 1800);
+}
+function confirmedBadge(s) {
+  if (!s) return '<span style="color:var(--muted);font-size:11px">—</span>';
+  const map = {'yes':'badge-yes','no':'badge-no','partial':'badge-partial'};
+  const cls = map[s.toLowerCase()] || 'badge-no';
+  return `<span class="badge ${cls}">${esc(s)}</span>`;
+}
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') }
+
+// ══════════════════════════════════════════════════════════════
+// SEARCH / FILTER
+// ══════════════════════════════════════════════════════════════
+function filterCorporate(q) {
+  q = q.toLowerCase();
+  const filtered = q
+    ? appData.corporate.filter(r =>
+        (r.company+r.contact+r.committee+r.status).toLowerCase().includes(q))
+    : appData.corporate;
+  document.getElementById('corpCount').textContent = filtered.length + ' companies' + (q ? ' (filtered)' : '');
+  renderCorporate(filtered);
+}
+
+// ══════════════════════════════════════════════════════════════
+// DUPLICATE CHECK
+// ══════════════════════════════════════════════════════════════
+
+function sponsorBadge(platinum, gold, idx) {
+  const val = platinum ? 'Platinum' : gold ? 'Gold' : '';
+  const cls = val === 'Platinum' ? 'sp-platinum' : val === 'Gold' ? 'sp-gold' : 'sp-empty';
+  return `<select class="sponsor-select ${cls}" onchange="updateSponsorship(${idx}, this.value, this)">
+    <option value=""        ${val===''?'selected':''}>— None —</option>
+    <option value="Platinum"${val==='Platinum'?'selected':''}>🥇 Platinum</option>
+    <option value="Gold"    ${val==='Gold'?'selected':''}>🥈 Gold</option>
+  </select>`;
+}
+
+function updateSponsorship(idx, newVal, selectEl) {
+  const rows = document.querySelectorAll('#corpTableWrap tbody tr');
+  const row = rows[idx];
+  if (!row) return;
+  const numCell = row.cells[0].textContent.trim();
+  const dataIdx = appData.corporate.findIndex(r => r.num == numCell);
+  if (dataIdx === -1) return;
+
+  appData.corporate[dataIdx].platinum = newVal === 'Platinum' ? '1' : '';
+  appData.corporate[dataIdx].gold     = newVal === 'Gold'     ? '1' : '';
+
+  const cls = newVal === 'Platinum' ? 'sp-platinum' : newVal === 'Gold' ? 'sp-gold' : 'sp-empty';
+  selectEl.className = 'sponsor-select ' + cls;
+
+  saveToBin();
+  showToast('✅ Sponsorship updated', 'green', 1800);
+}
+
+function checkDuplicate(newVal) {
+  const nl = newVal.toLowerCase().trim();
+  let exactIdx = -1, partialMatches = [];
+
+  appData.corporate.forEach((r, i) => {
+    const el = r.company.toLowerCase().trim();
+    if (nl === el) { exactIdx = i; return; }
+    if (nl.length >= 3 && (el.includes(nl) || nl.includes(el))) {
+      partialMatches.push({ row: parseInt(r.num||i+1), company: r.company });
+    }
+  });
+  return { exactIdx, partialMatches };
+}
+
+// ══════════════════════════════════════════════════════════════
+// SUBMIT
+// ══════════════════════════════════════════════════════════════
+function submitEntry() {
+  const company   = document.getElementById('f-company').value.trim();
+  const contact   = document.getElementById('f-contact').value.trim();
+  const committee = document.getElementById('f-committee').value.trim();
+  const status    = '';
+  const tickets   = '';
+
+  if (!company) { showToast('Please enter a company name', 'red'); return; }
+
+  const { exactIdx, partialMatches } = checkDuplicate(company);
+
+  if (exactIdx !== -1) {
+    const existing = appData.corporate[exactIdx];
+    showModal(
+      'red',
+      '🚫 Exact Duplicate Found',
+      `<strong>"${esc(company)}" already exists.</strong>
+       Please check before proceeding. Your entry has not been saved.`,
+      [{ matched: existing.company, row: existing.num }],
+      [{ label: 'OK', cls: 'btn-ok', action: closeModal }]
+    );
+    return;
+  }
+
+  if (partialMatches.length > 0) {
+    showModal(
+      'amber',
+      '⚠️ Similar Name Detected',
+      `<strong>"${esc(company)}" is similar to ${partialMatches.length} existing ${partialMatches.length===1?'entry':'entries'}.</strong>
+       Please check before proceeding.`,
+      partialMatches.map(m => ({ matched: m.company, row: m.row })),
+      [
+        { label: 'Cancel', cls: 'btn-cancel', action: closeModal },
+        { label: 'Add Anyway', cls: 'btn-confirm', action: () => { closeModal(); doAdd(company,contact,committee,status,tickets); } }
+      ]
+    );
+    return;
+  }
+
+  doAdd(company, contact, committee, status, tickets);
+}
+
+function doAdd(company, contact, committee, status, tickets) {
+  const maxNum = appData.corporate.reduce((m, r) => Math.max(m, parseInt(r.num)||0), 0);
+  appData.corporate.push({
+    num: String(maxNum + 1),
+    company, contact, committee, status,
+    platinum:'', gold:'', tickets
+  });
+  saveToBin();
+  renderAll();
+  // Clear form
+  ['f-company','f-contact','f-committee'].forEach(id => document.getElementById(id).value = '');
+  showToast('✅ ' + company + ' added!', 'green');
+  showTab('corporate');
+}
+
+// ══════════════════════════════════════════════════════════════
+// MODAL
+// ══════════════════════════════════════════════════════════════
+function showModal(type, title, bodyHTML, matches, buttons) {
+  document.getElementById('modalHead').className = 'modal-head ' + type;
+  document.getElementById('modalHead').textContent = title;
+  document.getElementById('modalBody').innerHTML =
+    bodyHTML +
+    matches.map(m => `<div class="modal-row">Row ${m.row}: <strong>${esc(m.company)}</strong></div>`).join('');
+  document.getElementById('modalFoot').innerHTML =
+    buttons.map((b,i) =>
+      `<button class="btn-modal ${b.cls}" onclick="modalBtnClick(${i})">${b.label}</button>`
+    ).join('');
+  window._modalButtons = buttons;
+  document.getElementById('modalOverlay').classList.add('show');
+}
+function modalBtnClick(i) { window._modalButtons[i].action(); }
+function closeModal() { document.getElementById('modalOverlay').classList.remove('show'); }
+document.getElementById('modalOverlay').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+// ══════════════════════════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════════════════════════
+let toastTimer;
+function showToast(msg, type='', duration=2500) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast' + (type ? ' '+type : '') + ' show';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), duration);
+}
+
+// ══════════════════════════════════════════════════════════════
+// TABS
+// ══════════════════════════════════════════════════════════════
+function showTab(name) {
+  document.querySelectorAll('.tab').forEach((t,i) => {
+    const names = ['corporate','add'];
+    t.classList.toggle('active', names[i] === name);
+  });
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  if (name !== 'corporate') document.getElementById('corpSearch').value = '';
+}
+
+
+// ══════════════════════════════════════════════════════════════
+// EXPORT / IMPORT
+// ══════════════════════════════════════════════════════════════
+function exportData() {
+  const json     = JSON.stringify(appData, null, 2);
+  const blob     = new Blob([json], { type: 'application/json' });
+  const url      = URL.createObjectURL(blob);
+  const a        = document.createElement('a');
+  const date     = new Date().toISOString().slice(0,10);
+  a.href         = url;
+  a.download     = 'corporate_targets_' + date + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('✅ Data exported', 'green', 2000);
+}
+
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const json = JSON.parse(e.target.result);
+      if (!json.corporate || !Array.isArray(json.corporate)) {
+        showToast('⚠️ Invalid file — not a Corporate Targets export', 'red', 3000);
+        return;
+      }
+      appData = json;
+      saveToStorage();
+      renderAll();
+      showToast('✅ Data imported — ' + json.corporate.length + ' companies loaded', 'green', 3000);
+    } catch(err) {
+      showToast('⚠️ Could not read file', 'red', 3000);
+    }
+    // Reset input so same file can be re-imported if needed
+    event.target.value = '';
+  };
+  reader.readAsText(file);
+}
+
+// ══════════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════════
+
+// ── Expose functions to global scope (required for type="module") ──
+window.showTab        = showTab;
+window.submitEntry    = submitEntry;
+window.filterCorporate = filterCorporate;
+window.updateStatus   = updateStatus;
+window.updateSponsorship = updateSponsorship;
+window.closeModal     = closeModal;
+window.modalBtnClick  = modalBtnClick;
+
+initStorage();
+</script>
+</body>
+</html>
