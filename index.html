@@ -73,7 +73,7 @@ body{
 
 /* ── SUMMARY CARDS ── */
 .summary{
-  display:grid;grid-template-columns:repeat(3,1fr);
+  display:grid;grid-template-columns:repeat(4,1fr);
   gap:10px;padding:14px;
 }
 .scard{
@@ -86,7 +86,9 @@ body{
 }
 .scard-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-top:2px}
 .scard.green .scard-num{color:var(--green)}
-.scard.blue  .scard-num{color:var(--blue)}
+.scard.blue     .scard-num{color:var(--blue)}
+.scard.platinum .scard-num{color:#3730a3}
+.scard.gold     .scard-num{color:#92400e}
 
 /* ── SEARCH ── */
 .search-wrap{padding:0 14px 10px}
@@ -284,6 +286,28 @@ input.field:focus,select.field:focus{
 
 .status-select.s-not       { background-color:#fee2e2; color:#991b1b; }
 
+
+.contact-select {
+  font-family: 'Barlow', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  border: none;
+  border-radius: 20px;
+  padding: 3px 8px;
+  cursor: pointer;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2364748b'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 6px center;
+  padding-right: 22px;
+}
+.contact-select.cm-empty    { background-color:#f1f5f9; color:#64748b; }
+.contact-select.cm-inperson { background-color:#ede9fe; color:#5b21b6; }
+.contact-select.cm-phone    { background-color:#dcfce7; color:#166534; }
+.contact-select.cm-email    { background-color:#dbeafe; color:#1e40af; }
+
 /* ── LOADING ── */
 .loading{
   display:flex;align-items:center;justify-content:center;
@@ -319,8 +343,9 @@ input.field:focus,select.field:focus{
 <div id="tab-corporate" class="tab-panel active">
   <div class="summary">
     <div class="scard"><div class="scard-num" id="s-total">—</div><div class="scard-label">Total</div></div>
-    <div class="scard green"><div class="scard-num" id="s-confirmed">—</div><div class="scard-label">Confirmed</div></div>
     <div class="scard blue"><div class="scard-num" id="s-pending">—</div><div class="scard-label">Pending</div></div>
+    <div class="scard platinum"><div class="scard-num" id="s-platinum">—</div><div class="scard-label">Platinum Confirmed</div></div>
+    <div class="scard gold"><div class="scard-num" id="s-gold">—</div><div class="scard-label">Gold Confirmed</div></div>
   </div>
   <div class="sync-bar">
     <button class="btn-sync" onclick="exportData()" style="display:none">⬇ Export Data</button>
@@ -461,15 +486,18 @@ function renderAll() {
 }
 
 function renderCorporate(rows) {
-  const confirmed = rows.filter(r => r.status && r.status.toLowerCase() === 'confirmed').length;
+  const platinum  = rows.filter(r => r.platinum && r.platinum !== '').length;
+  const gold      = rows.filter(r => r.gold && r.gold !== '').length;
+  const pending   = rows.filter(r => !r.status || r.status === '').length;
   document.getElementById('s-total').textContent     = rows.length;
-  document.getElementById('s-confirmed').textContent = confirmed;
-  document.getElementById('s-pending').textContent   = rows.length - confirmed;
+  document.getElementById('s-pending').textContent   = pending;
+  document.getElementById('s-platinum').textContent  = platinum;
+  document.getElementById('s-gold').textContent      = gold;
   document.getElementById('corpCount').textContent   = rows.length + ' companies';
 
   const html = `<table>
     <thead><tr>
-      <th>#</th><th>Company</th><th>Contact</th><th>Committee</th><th>Status</th><th>Sponsorship Type</th>
+      <th>#</th><th>Company</th><th>Contact</th><th>Committee</th><th>Contact Made</th><th>Status</th><th>Sponsorship Type</th>
     </tr></thead>
     <tbody>${rows.map((r,i) => `
       <tr>
@@ -477,6 +505,7 @@ function renderCorporate(rows) {
         <td><strong>${esc(r.company)}</strong></td>
         <td style="color:var(--muted)">${esc(r.contact)}</td>
         <td style="color:var(--muted)">${esc(r.committee)}</td>
+        <td>${contactBadge(r.contactMade, i)}</td>
         <td>${statusBadge(r.status, i)}</td>
         <td>${sponsorBadge(r.platinum, r.gold, i)}</td>
       </tr>`).join('')}
@@ -522,9 +551,12 @@ function updateStatus(idx, newStatus, selectEl) {
   selectEl.className = 'status-select ' + cls;
 
   // Update summary counts without full re-render (keeps dropdowns stable)
-  const confirmed = appData.corporate.filter(r => r.status && r.status.toLowerCase() === 'confirmed').length;
-  document.getElementById('s-confirmed').textContent = confirmed;
-  document.getElementById('s-pending').textContent   = appData.corporate.length - confirmed;
+  const platinum  = appData.corporate.filter(r => r.platinum && r.platinum !== '').length;
+  const gold      = appData.corporate.filter(r => r.gold && r.gold !== '').length;
+  const pending   = appData.corporate.filter(r => !r.status || r.status === '').length;
+  document.getElementById('s-pending').textContent   = pending;
+  document.getElementById('s-platinum').textContent  = platinum;
+  document.getElementById('s-gold').textContent      = gold;
 
   saveToBin();
   showToast('✅ Status updated', 'green', 1800);
@@ -553,6 +585,41 @@ function filterCorporate(q) {
 // ══════════════════════════════════════════════════════════════
 // DUPLICATE CHECK
 // ══════════════════════════════════════════════════════════════
+
+
+function contactBadge(val, idx) {
+  val = val || '';
+  const cls = val === 'In Person' ? 'cm-inperson'
+            : val === 'Phone Call' ? 'cm-phone'
+            : val === 'Email'      ? 'cm-email'
+            : 'cm-empty';
+  return `<select class="contact-select ${cls}" onchange="updateContactMade(${idx}, this.value, this)">
+    <option value=""          ${val===''?'selected':''}>— None —</option>
+    <option value="In Person" ${val==='In Person'?'selected':''}>🤝 In Person</option>
+    <option value="Phone Call"${val==='Phone Call'?'selected':''}>📞 Phone Call</option>
+    <option value="Email"     ${val==='Email'?'selected':''}>✉️ Email</option>
+  </select>`;
+}
+
+function updateContactMade(idx, newVal, selectEl) {
+  const rows = document.querySelectorAll('#corpTableWrap tbody tr');
+  const row  = rows[idx];
+  if (!row) return;
+  const numCell = row.cells[0].textContent.trim();
+  const dataIdx = appData.corporate.findIndex(r => r.num == numCell);
+  if (dataIdx === -1) return;
+
+  appData.corporate[dataIdx].contactMade = newVal;
+
+  const cls = newVal === 'In Person' ? 'cm-inperson'
+            : newVal === 'Phone Call' ? 'cm-phone'
+            : newVal === 'Email'      ? 'cm-email'
+            : 'cm-empty';
+  selectEl.className = 'contact-select ' + cls;
+
+  saveToBin();
+  showToast('✅ Contact updated', 'green', 1800);
+}
 
 function sponsorBadge(platinum, gold, idx) {
   const val = platinum ? 'Platinum' : gold ? 'Gold' : '';
@@ -645,7 +712,7 @@ function doAdd(company, contact, committee, status, tickets) {
   const maxNum = appData.corporate.reduce((m, r) => Math.max(m, parseInt(r.num)||0), 0);
   appData.corporate.push({
     num: String(maxNum + 1),
-    company, contact, committee, status,
+    company, contact, committee, status, contactMade: '',
     platinum:'', gold:'', tickets
   });
   saveToBin();
@@ -753,7 +820,8 @@ window.showTab        = showTab;
 window.submitEntry    = submitEntry;
 window.filterCorporate = filterCorporate;
 window.updateStatus   = updateStatus;
-window.updateSponsorship = updateSponsorship;
+window.updateSponsorship  = updateSponsorship;
+window.updateContactMade  = updateContactMade;
 window.closeModal     = closeModal;
 window.modalBtnClick  = modalBtnClick;
 
